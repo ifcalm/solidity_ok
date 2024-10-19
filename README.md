@@ -2,14 +2,14 @@
 
 以下是一个为期2周的 Solidity 学习计划，详细列出了每天的学习内容，涵盖了从基础到高级的各方面知识。
 
-### 第1周：Solidity基础与高级语法
+## 第1周：Solidity基础与高级语法
 
-#### 第1天：Solidity入门与背景
-- **目标**：了解Solidity的历史和应用领域，安装开发环境
-  1. Solidity简介与智能合约的历史背景
-  2. Ethereum虚拟机（EVM）工作原理
-  3. 安装与配置开发环境（Remix, VSCode + Hardhat/Truffle）
-  4. Solidity的开发工具学习
+### 第1天：Solidity入门与背景
+#### 目标：了解Solidity的历史和应用领域，安装开发环境
+- Solidity简介与智能合约的历史背景
+- Ethereum虚拟机（EVM）工作原理
+- 安装与配置开发环境（Remix, VSCode + Hardhat/Truffle）
+- Solidity的开发工具学习
 
 #### 第2天：基础语法（1）
 - **目标**：掌握Solidity的基础数据类型与变量
