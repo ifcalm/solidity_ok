@@ -40,3 +40,15 @@ pragma solidity >=0.8.0 <0.9.0;
 pragma solidity ^0.8.0;
 ```
 
+### 定义合约
+Solidity 使用 `contract` 定义合约，这里定义了一个名为 Counter 的合约:
+```
+contract Counter {
+    // 合约代码
+    // contract 关键字用于定义一个智能合约
+}
+```
+在Solidity中，合约本身也是一个数据类型， 称为合约类型。**合约部署到链上后，使用地址来表示一个合约**。 
+
+合约由 合约数据 和 合约函数组成。
+
