@@ -114,3 +114,6 @@ contract OldStyleConstructor {
 ```
 在 0.7.0 及更高版本中，使用 `constructor` 关键字定义构造函数，且无需设置可见性修饰符（如 public）。
 
+### 变量与函数的可见性
+
+待续...
