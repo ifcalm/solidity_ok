@@ -114,6 +114,195 @@ contract OldStyleConstructor {
 ```
 在 0.7.0 及更高版本中，使用 `constructor` 关键字定义构造函数，且无需设置可见性修饰符（如 public）。
 
-### 变量与函数的可见性
+---
 
-待续...
+## 变量与函数的可见性
+在 Solidity 中，变量和函数的可见性控制着它们在合约内部或外部的访问权限。理解可见性修饰符对于编写安全、优化的合约非常重要。
+
+Solidity 中的可见性修饰符主要包括 `public`、`internal`、`external` 和 `private`，这些修饰符用于控制变量和函数的访问范围。
+
+### 1、变量的可见性
+
+Solidity 中的变量可以使用 `public`、`internal` 和 `private` 可见性修饰符来定义。可见性控制了变量是否可以从合约外部、继承合约或合约内部访问。
+
+#### 1.1、`public` 变量
+
+- **定义**：`public` 修饰的变量可以被合约内部和外部访问。
+- **自动生成访问器**：当状态变量声明为 `public` 时，Solidity 会自动为它生成一个“getter”函数，使外部账户可以访问变量的值。
+- **适用场景**：`public` 变量适合用于需要公开访问的状态数据，例如代币合约中的名称、符号、总供应量等。
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract Example {
+    uint public publicVar = 10; // 生成一个名为 `publicVar()` 的getter函数
+}
+```
+
+在上述示例中，`publicVar` 可以通过 `Example.publicVar()` 来从合约外部访问。
+
+#### 1.2、`internal` 变量
+
+- **定义**：`internal` 变量只能在合约内部和继承合约中访问，无法从合约外部直接访问。
+- **适用场景**：适用于希望在合约及其子合约中使用，但不希望外部访问的数据。例如内部配置参数、敏感的状态变量等。
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract Example {
+    uint internal internalVar = 20;
+}
+```
+在此示例中，`internalVar` 只能在 `Example` 合约内部或继承自 `Example` 的合约中访问。
+
+#### 1.3、`private` 变量
+
+- **定义**：`private` 变量只能在声明它的合约中访问，继承合约也无法访问。
+- **适用场景**：适用于完全不希望暴露的私密数据，如内部计数器、权限管理变量等。
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract Example {
+    uint private privateVar = 30;
+}
+```
+在上述代码中，`privateVar` 只能在 `Example` 合约内部访问，即使有合约继承 `Example`，也无法访问 `privateVar`。
+
+### 2、函数的可见性
+
+Solidity 中函数的可见性分为 `public`、`internal`、`external` 和 `private`。每个修饰符都控制了函数的调用范围。
+
+#### 2.1、`public` 函数
+
+- **定义**：`public` 函数可以在合约内部和外部调用，任何人都可以调用这些函数。
+- **自动生成接口**：在合约 ABI 中，`public` 函数会自动生成公开的接口。
+- **适用场景**：适用于需要被外部用户或合约调用的函数，如公开的查询和操作函数。
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract Example {
+    function publicFunction() public view returns (string memory) {
+        return "This is a public function";
+    }
+}
+```
+
+在此示例中，`publicFunction` 可以被 `Example.publicFunction()` 调用，也可以在合约内部调用。
+
+#### 2.2、`external` 函数
+
+- **定义**：`external` 函数只能从合约外部调用，不能被当前合约的内部函数直接调用，但可以通过 `this` 调用自身的 `external` 函数。
+- **Gas 优化**：`external` 函数比 `public` 函数更节省 Gas，适合只被外部访问的场景。
+- **适用场景**：适用于专门提供给外部的接口，例如被用户或其他合约直接调用的函数。
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract Example {
+    function externalFunction() external view returns (string memory) {
+        return "This is an external function";
+    }
+}
+```
+
+在上述代码中，`externalFunction` 只能在合约外部调用。如果要在内部调用，必须通过 `this.externalFunction()`，但这样会消耗额外的 Gas。
+
+#### 2.3、`internal` 函数
+
+- **定义**：`internal` 函数只能在当前合约和继承合约中调用，外部无法调用。
+- **适用场景**：用于封装合约内部逻辑的函数，常用于继承结构中的共享函数，例如计算函数、权限控制函数等。
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract Example {
+    function internalFunction() internal view returns (string memory) {
+        return "This is an internal function";
+    }
+}
+```
+
+在此示例中，`internalFunction` 只能在 `Example` 合约内部或继承自 `Example` 的合约中调用。
+
+#### 2.4、`private` 函数
+
+- **定义**：`private` 函数只能在当前合约中调用，继承合约也无法调用。
+- **适用场景**：用于完全封装合约内部的逻辑，适合敏感的辅助函数或不希望暴露的逻辑处理。
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract Example {
+    function privateFunction() private view returns (string memory) {
+        return "This is a private function";
+    }
+}
+```
+
+在此示例中，`privateFunction` 只能在 `Example` 合约内部调用，无法从外部访问，即使继承 `Example` 也无法调用此函数。
+
+### 3、可见性修饰符的总结和对比
+
+| 修饰符      | 适用于         | 合约内部可调用 | 继承合约可调用 | 合约外部可调用 | 典型应用场景                 |
+|-------------|----------------|----------------|----------------|----------------|------------------------------|
+| `public`    | 变量、函数     | ✅             | ✅             | ✅             | 公开变量和公开接口           |
+| `external`  | 函数           | ❌（可通过`this`调用） | ❌             | ✅             | 专门用于外部接口，减少 Gas  |
+| `internal`  | 变量、函数     | ✅             | ✅             | ❌             | 继承结构中的共享逻辑         |
+| `private`   | 变量、函数     | ✅             | ❌             | ❌             | 合约内部的敏感逻辑和数据     |
+
+
+### 4、示例应用
+
+以下是一个结合了不同可见性修饰符的示例，展示了在智能合约中如何使用它们：
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract VisibilityExample {
+    address public owner;           // public变量，外部可访问
+    uint private secretData;        // private变量，只有内部可访问
+
+    constructor(uint _secretData) {
+        owner = msg.sender;         // 设置合约所有者
+        secretData = _secretData;   // 初始化私密数据
+    }
+
+    function getSecretData() public view returns (uint) {
+        return secretData;          // 通过 public 函数暴露部分私密信息
+    }
+
+    function updateSecretData(uint _newSecretData) public onlyOwner {
+        secretData = _newSecretData;
+    }
+
+    function onlyOwnerFunction() internal view onlyOwner returns (string memory) {
+        return "This function is only accessible by the owner internally";
+    }
+
+    function externalFunction() external view returns (string memory) {
+        return "This is accessible externally but not internally";
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not the contract owner");
+        _;
+    }
+}
+```
+
+- **`public`**：`owner` 和 `getSecretData` 是公开的变量和函数，可以从外部访问。
+- **`private`**：`secretData` 是私有变量，只能在合约内部访问。
+- **`internal`**：`onlyOwnerFunction` 是内部函数，合约内和子合约都能访问。
+- **`external`**：`externalFunction` 只能在合约外部访问，适用于外部接口。
+
+### 5、选择可见性修饰符的最佳实践
+
+- **仅暴露必要的函数和变量**：尽量将数据和函数限制在最小可见性，以提高合约安全性。
+- **减少 Gas 消耗**：如果函数只用于外部调用，优先选择 `external` 以节省 Gas。
+- **使用 `internal` 共享逻辑**：将共享的逻辑封装为 `internal` 函数，在继承合约中重复使用。
+
+---
+
+
