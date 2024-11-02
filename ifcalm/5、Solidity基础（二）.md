@@ -707,4 +707,222 @@ contract OverflowExample {
 
 ---
 
+## 地址类型的操作
+
+在 Solidity 中，**地址类型（Address Type）** 是用于存储以太坊账户地址的数据类型。地址类型分为 `address` 和 `address payable` 两种，其中 `address payable` 具有处理以太币（ETH）转账的能力，而 `address` 仅用于表示地址。地址类型在合约编程中非常重要，尤其是涉及转账、合约间调用和权限控制等场景。
+
+### 1、地址类型的基本概念
+
+在 Solidity 中，地址类型用于存储 20 字节（160 位）的以太坊地址。地址既可以表示用户账户（EOA），也可以表示智能合约账户。
+
+- **address**：只能存储地址，不能用于以太币的转账。
+- **address payable**：表示可接收以太币的地址，具有 `transfer` 和 `send` 函数用于转账操作。
+
+```solidity
+address public owner;
+address payable public wallet;
+```
+
+在上述例子中，`owner` 是一个常规地址类型，而 `wallet` 是一个可以接收 ETH 的 `address payable` 类型。
+
+### 2、**address 和 address payable 的区别
+
+- **address** 类型：仅用于存储地址，不能接收或发送 ETH。适用于不涉及转账的操作，例如用来存储合约地址、用户地址等。
+- **address payable** 类型：可以接收和发送 ETH，适用于需要进行转账的地址，支持 `transfer`、`send` 和 `call` 等支付功能。
+
+#### 转换示例
+
+```solidity
+address addr = 0x1234567890123456789012345678901234567890;
+address payable payableAddr = payable(addr); // 将 address 转换为 address payable
+```
+
+在 Solidity 中，如果需要对一个 `address` 地址进行转账操作，必须先将其转换为 `address payable` 类型。
+
+### 3、地址类型的常用操作
+
+地址类型提供了多个成员函数和属性，用于获取账户余额、执行转账和调用外部合约等操作。
+
+#### 3.1、获取地址余额
+
+可以使用 `.balance` 获取某个地址上的 ETH 余额。余额的单位为 Wei，1 ETH = 10<sup>18</sup> Wei。
+
+```solidity
+function getBalance(address _addr) public view returns (uint) {
+    return _addr.balance;
+}
+```
+
+#### 3.2、转账操作
+
+`address payable` 类型支持三种转账方法：`transfer`、`send` 和 `call`，用于向另一个账户发送 ETH。
+
+1. **transfer**
+
+   - `transfer` 会发送指定金额的 ETH，并在失败时自动回滚。
+   - 固定转账的 Gas 限制为 2300。
+   - 安全且简单，推荐在普通场景下使用。
+
+   ```solidity
+   address payable recipient = payable(0x1234567890123456789012345678901234567890);
+
+   function sendEther() public payable {
+       recipient.transfer(msg.value); // 转账操作
+   }
+   ```
+
+2. **send**
+
+   - `send` 类似于 `transfer`，但会返回一个布尔值表示成功或失败。
+   - 需要进行返回值检查，如果失败需要进行手动处理。
+   - 固定转账的 Gas 限制为 2300，适合小额转账。
+
+   ```solidity
+   function sendEther() public payable {
+       bool success = recipient.send(msg.value);
+       require(success, "Send failed");
+   }
+   ```
+
+3. **call**
+
+   - `call` 是一种低级调用方式，可以自定义 Gas 限制和函数调用参数。
+   - `call` 更灵活，适合复杂合约调用，但需要检查返回值。
+   - 推荐在需要更高 Gas 限制或外部合约调用时使用。
+
+   ```solidity
+   function sendEther() public payable {
+       (bool success, ) = recipient.call{value: msg.value}("");
+       require(success, "Call failed");
+   }
+   ```
+
+#### 转账方式的选择
+
+- **普通转账**：`transfer` 安全可靠，适合小额支付。
+- **复杂调用**：`call` 支持可变 Gas，适合合约之间的复杂交互。
+- **安全性**：`call` 的灵活性较高，但也需要更加谨慎的错误处理。
+
+### 4、地址类型的成员函数
+
+地址类型提供了几个实用的成员函数，简化合约开发中的常见操作。
+
+#### 4.1、balance
+
+`.balance` 属性用于获取地址的 ETH 余额，单位为 Wei。
+
+```solidity
+address public addr = 0x1234567890123456789012345678901234567890;
+
+function checkBalance() public view returns (uint) {
+    return addr.balance; // 获取地址余额
+}
+```
+
+#### 4.2 transfer
+
+`transfer` 是 `address payable` 的成员函数，用于将以太币转账给指定地址。
+
+```solidity
+function transferEther(address payable recipient) public payable {
+    recipient.transfer(msg.value); // 将接收到的 ETH 转账到指定地址
+}
+```
+
+#### 4.3、send
+
+`send` 与 `transfer` 类似，但返回一个布尔值以表示成功或失败。失败时不会自动回滚，因此需要手动处理。
+
+```solidity
+function sendEther(address payable recipient) public payable {
+    bool success = recipient.send(msg.value);
+    require(success, "Send failed");
+}
+```
+
+#### 4.4、call
+
+`call` 是一种灵活的底层调用方法，支持发送 ETH 和调用合约函数。
+
+```solidity
+function callFunction(address payable recipient) public payable {
+    (bool success, ) = recipient.call{value: msg.value}("");
+    require(success, "Call failed");
+}
+```
+
+### 5、地址类型在合约中的应用
+
+地址类型广泛应用于 Solidity 合约的各种场景中，尤其是在涉及权限管理、转账操作和合约调用时。
+
+#### 5.1、权限控制
+
+地址类型常用于权限控制，通过 `msg.sender` 和预定义的地址来判断调用者是否具备权限。
+
+```solidity
+address public owner;
+
+constructor() {
+    owner = msg.sender;
+}
+
+modifier onlyOwner() {
+    require(msg.sender == owner, "Not the contract owner");
+    _;
+}
+
+function restrictedFunction() public onlyOwner {
+    // 只有合约所有者可以调用
+}
+```
+
+#### 5.2、收款和转账
+
+`address payable` 可以用于接收和转账 ETH，常用于支付合约、众筹合约等需要收款的场景。
+
+```solidity
+address payable public wallet;
+
+constructor(address payable _wallet) {
+    wallet = _wallet;
+}
+
+function deposit() public payable {
+    wallet.transfer(msg.value); // 将接收到的 ETH 转账到预设钱包地址
+}
+```
+
+#### 5.3、合约之间的调用
+
+在智能合约中，地址类型也用于实现合约之间的交互，例如调用另一个合约的函数。可以使用 `call`、`delegatecall` 和 `staticcall` 实现更复杂的合约间操作。
+
+```solidity
+contract Target {
+    function greet() public pure returns (string memory) {
+        return "Hello, Solidity!";
+    }
+}
+
+contract Caller {
+    function callGreet(address target) public returns (string memory) {
+        (bool success, bytes memory data) = target.call(
+            abi.encodeWithSignature("greet()")
+        );
+        require(success, "Call failed");
+        return abi.decode(data, (string));
+    }
+}
+```
+
+在此示例中，`Caller` 合约通过地址调用 `Target` 合约的 `greet` 函数。
+
+### 6、地址类型的安全注意事项
+
+地址类型的操作涉及以太币的转账和合约间的交互，在实际使用时需要特别注意安全性。
+
+- **检查返回值**：`send` 和 `call` 都会返回布尔值以表示是否成功，应在操作后检查返回值。
+- **避免重入攻击**：在涉及外部调用时，尤其是转账后调用 `call` 时，应注意防止重入攻击。可以使用 `Checks-Effects-Interactions` 模式，先更新合约状态，再执行外部调用。
+- **地址类型转换**：在使用转账或收款操作时，需要确保地址是 `address payable` 类型，否则可能导致错误。
+
+---
 
