@@ -254,3 +254,220 @@ function revertTest(uint value) public pure {
 ### 总结
 
 Solidity 中的函数包含多个特性和修饰符，合理使用可见性、状态修饰符、修饰符等可以使合约更高效、更安全。函数的设计不仅要考虑功能实现，还应考虑性能和 Gas 优化，保证合约的可维护性和经济性。
+
+---
+
+## 数据类型
+
+在 Solidity 中，数据类型分为 **值类型（Value Types）** 和 **引用类型（Reference Types）**。值类型存储数据本身，引用类型则存储数据的地址（指向数据的引用）。理解数据类型及其特性是 Solidity 编写合约的基础。
+
+### 1、值类型（Value Types）
+
+值类型变量直接存储数据本身，数据的复制不会影响原变量。
+
+#### 1.1、整数类型
+
+Solidity 支持有符号和无符号整数类型。
+
+- **uint**：无符号整数，不可为负数，范围为 0 到 2<sup>256</sup> - 1。
+  - `uint8` 到 `uint256`，每次增加 8 位。
+  - `uint` 是 `uint256` 的简写。
+  
+- **int**：有符号整数，可以为负数，范围为 -2<sup>255</sup> 到 2<sup>255</sup> - 1。
+  - `int8` 到 `int256`，每次增加 8 位。
+  - `int` 是 `int256` 的简写。
+
+```solidity
+uint public maxSupply = 1000;  // 无符号整数
+int public temperature = -273; // 有符号整数
+```
+
+#### 1.2、布尔类型（Boolean）
+
+布尔类型 `bool` 只有两个值：`true` 和 `false`，常用于条件判断。
+
+```solidity
+bool public isActive = true;
+```
+
+#### 1.3、地址类型（Address）
+
+`address` 类型用于存储以太坊地址（20 字节，40 个十六进制字符）。`address` 还可以被声明为 `payable` 类型，表示可以接收以太币。
+
+- **address**：不可接收以太币。
+- **address payable**：可以接收以太币，具有 `transfer` 和 `send` 方法。
+
+```solidity
+address public owner = 0x1234567890123456789012345678901234567890;
+address payable public wallet;
+```
+
+#### 1.4、定长字节数组（Fixed-size Byte Arrays）
+
+用于存储定长的字节数据，支持 `bytes1` 到 `bytes32`，每次增加 1 字节（8 位）。
+
+```solidity
+bytes32 public dataHash = keccak256("data");
+```
+
+#### 1.5、枚举类型（Enum）
+
+枚举用于定义一组预定义的常量值，有助于提高代码的可读性。
+
+```solidity
+enum Status { Pending, Shipped, Completed, Canceled }
+
+Status public orderStatus;
+
+function completeOrder() public {
+    orderStatus = Status.Completed;
+}
+```
+
+### 2、引用类型（Reference Types）
+
+引用类型变量存储的是数据的地址。引用类型包括数组、结构体和映射。
+
+#### 2.1、字符串类型（String）
+
+`string` 是 Solidity 中的字符串类型，用于存储动态大小的 UTF-8 编码文本。
+
+```solidity
+string public name = "Alice";
+```
+
+- **注意**：`string` 是一种动态数组，默认存储在 `storage` 中，可以在函数参数中声明为 `memory`。
+
+#### 2.2、数组类型（Arrays）
+
+Solidity 支持定长和动态数组。
+
+- **定长数组**：长度固定，声明时指定大小。
+- **动态数组**：长度可变，常用于存储未知大小的数据。
+
+```solidity
+uint[5] public fixedArray;        // 定长数组
+uint[] public dynamicArray;       // 动态数组
+
+function addValue(uint _value) public {
+    dynamicArray.push(_value);   // 动态数组增加元素
+}
+```
+
+#### 2.3、结构体类型（Struct）
+
+结构体是一种自定义的数据类型，允许将多种类型组合在一起。
+
+```solidity
+struct Person {
+    string name;
+    uint age;
+}
+
+Person public person = Person("Alice", 25);
+```
+
+#### 2.4、映射类型（Mapping）
+
+映射是键值对的数据结构，用于存储键值对。键可以是值类型（如 `uint` 或 `address`），值可以是任何类型。
+
+```solidity
+mapping(address => uint) public balances;
+
+function setBalance(address _addr, uint _balance) public {
+    balances[_addr] = _balance;
+}
+```
+
+- **注意**：映射中的值不会自动初始化，初始状态下未赋值的映射值是默认值（如 `uint` 为 `0`）。
+
+### 3、特殊类型
+
+Solidity 提供了一些特殊的数据类型，如 `function` 类型和 `address payable` 类型，用于特殊场景。
+
+#### 3.1、函数类型
+
+`function` 类型可以存储函数的地址，允许将函数作为参数传递或动态调用。
+
+```solidity
+function add(uint a, uint b) public pure returns (uint) {
+    return a + b;
+}
+
+function executeOperation(uint x, uint y, function(uint, uint) pure returns (uint) operation) public pure returns (uint) {
+    return operation(x, y);
+}
+
+// 调用方式
+executeOperation(1, 2, add);
+```
+
+#### 3.2、地址支付类型（Address Payable）
+
+`address payable` 是一种特殊的地址类型，用于存储可以接收以太币的地址。
+
+```solidity
+address payable public wallet = payable(0x1234567890123456789012345678901234567890);
+
+function deposit() public payable {
+    wallet.transfer(msg.value);
+}
+```
+
+- 只有 `address payable` 类型的地址可以使用 `transfer` 和 `send` 进行支付操作。
+
+### 4、数据位置
+
+Solidity 引入了 `storage`、`memory` 和 `calldata` 关键字来指定数据的存储位置。
+
+#### 4.1、Storage
+
+- **存储位置**：数据永久存储在区块链上。
+- **适用对象**：状态变量和一些引用类型变量默认存储在 `storage` 中。
+
+```solidity
+uint public data = 10;  // 存储在 storage 中
+```
+
+#### 4.2、Memory
+
+- **存储位置**：数据只在函数调用期间存在，不会存储在区块链上。
+- **适用对象**：用于函数内部的临时数据，特别是引用类型的参数。
+
+```solidity
+function getData(string memory _text) public pure returns (string memory) {
+    return _text;
+}
+```
+
+#### 4.3、Calldata
+
+- **存储位置**：只读数据，仅适用于外部函数的引用类型参数。
+- **适用对象**：`external` 函数的参数，具有最低的 Gas 消耗。
+
+```solidity
+function processData(uint[] calldata _data) external {
+    // 处理 _data
+}
+```
+
+### 5、类型转换
+
+Solidity 中可以进行类型转换，但需要遵循一定规则。
+
+- **显式转换**：在不同类型之间进行转换时，需要显式声明。例如从 `uint` 转换为 `int`。
+  
+```solidity
+uint a = 10;
+int b = int(a);  // 从 uint 转换为 int
+```
+
+- **地址转换**：可以将 `address` 转换为 `address payable`，用于支付功能。
+  
+```solidity
+address addr = 0x1234567890123456789012345678901234567890;
+address payable payAddr = payable(addr);
+```
+
+---
+
