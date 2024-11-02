@@ -471,3 +471,240 @@ address payable payAddr = payable(addr);
 
 ---
 
+## 整型运算符
+
+在 Solidity 中，**整型运算符**用于对整数（`int` 和 `uint`）进行算术、关系、按位和赋值等操作。了解这些运算符的使用和特性对编写 Solidity 智能合约十分重要，尤其在涉及数字运算时需要注意溢出问题。
+
+### 1、算术运算符
+
+算术运算符用于对整数进行加、减、乘、除等操作。常用的算术运算符包括 `+`、`-`、`*`、`/` 和 `%`。
+
+| 运算符 | 描述         | 示例                   |
+|--------|--------------|------------------------|
+| `+`    | 加法         | `a + b`                |
+| `-`    | 减法         | `a - b`                |
+| `*`    | 乘法         | `a * b`                |
+| `/`    | 除法         | `a / b`                |
+| `%`    | 取模（余数） | `a % b`                |
+
+#### 示例代码
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract ArithmeticOperators {
+    function add(uint a, uint b) public pure returns (uint) {
+        return a + b;
+    }
+
+    function subtract(uint a, uint b) public pure returns (uint) {
+        return a - b;
+    }
+
+    function multiply(uint a, uint b) public pure returns (uint) {
+        return a * b;
+    }
+
+    function divide(uint a, uint b) public pure returns (uint) {
+        require(b != 0, "Division by zero"); // 避免除以零
+        return a / b;
+    }
+
+    function mod(uint a, uint b) public pure returns (uint) {
+        require(b != 0, "Division by zero"); // 避免除以零
+        return a % b;
+    }
+}
+```
+
+#### 注意事项
+
+- **整数除法**：Solidity 中的整数除法会舍弃小数部分。例如，`5 / 2` 的结果是 `2`，不会四舍五入。
+- **除以零**：在 Solidity 中除以零会导致错误，因此要在运算前进行检查。
+
+### 2、关系运算符
+
+关系运算符用于比较两个整数，返回一个布尔值。关系运算符通常用于条件判断。
+
+| 运算符 | 描述         | 示例           |
+|--------|--------------|----------------|
+| `==`   | 等于         | `a == b`       |
+| `!=`   | 不等于       | `a != b`       |
+| `>`    | 大于         | `a > b`        |
+| `<`    | 小于         | `a < b`        |
+| `>=`   | 大于等于     | `a >= b`       |
+| `<=`   | 小于等于     | `a <= b`       |
+
+#### 示例代码
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract ComparisonOperators {
+    function isEqual(uint a, uint b) public pure returns (bool) {
+        return a == b;
+    }
+
+    function isGreater(uint a, uint b) public pure returns (bool) {
+        return a > b;
+    }
+
+    function isLessOrEqual(uint a, uint b) public pure returns (bool) {
+        return a <= b;
+    }
+}
+```
+
+### 3、按位运算符
+
+按位运算符用于二进制位的操作。主要的按位运算符包括 `&`（按位与）、`|`（按位或）、`^`（按位异或）和 `~`（按位取反）。这些运算符通常用于底层操作或位掩码的处理。
+
+| 运算符 | 描述         | 示例         |
+|--------|--------------|--------------|
+| `&`    | 按位与       | `a & b`      |
+| `|`    | 按位或       | `a | b`      |
+| `^`    | 按位异或     | `a ^ b`      |
+| `~`    | 按位取反     | `~a`         |
+
+#### 示例代码
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract BitwiseOperators {
+    function bitwiseAnd(uint a, uint b) public pure returns (uint) {
+        return a & b;
+    }
+
+    function bitwiseOr(uint a, uint b) public pure returns (uint) {
+        return a | b;
+    }
+
+    function bitwiseXor(uint a, uint b) public pure returns (uint) {
+        return a ^ b;
+    }
+
+    function bitwiseNot(uint a) public pure returns (uint) {
+        return ~a;
+    }
+}
+```
+
+### 4、移位运算符
+
+移位运算符用于将整数的位左移或右移。移位操作可以加快运算速度，在某些情况下可以替代乘除法。
+
+| 运算符 | 描述           | 示例       |
+|--------|----------------|------------|
+| `<<`   | 左移           | `a << b`   |
+| `>>`   | 右移           | `a >> b`   |
+
+- 左移 `<<` 会将二进制位向左移动，等同于乘以 2 的移位次数次方。
+- 右移 `>>` 会将二进制位向右移动，等同于除以 2 的移位次数次方。
+
+#### 示例代码
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract ShiftOperators {
+    function leftShift(uint a, uint b) public pure returns (uint) {
+        return a << b;
+    }
+
+    function rightShift(uint a, uint b) public pure returns (uint) {
+        return a >> b;
+    }
+}
+```
+
+### 5、赋值运算符
+
+赋值运算符用于将表达式的结果赋值给变量。常见的赋值运算符包括 `=`、`+=`、`-=`、`*=`、`/=` 和 `%=`。
+
+| 运算符 | 描述            | 示例       |
+|--------|-----------------|------------|
+| `=`    | 赋值            | `a = b`    |
+| `+=`   | 加法赋值        | `a += b`   |
+| `-=`   | 减法赋值        | `a -= b`   |
+| `*=`   | 乘法赋值        | `a *= b`   |
+| `/=`   | 除法赋值        | `a /= b`   |
+| `%=`   | 取模赋值        | `a %= b`   |
+
+#### 示例代码
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract AssignmentOperators {
+    uint public value = 10;
+
+    function addAssign(uint a) public {
+        value += a;  // 相当于 value = value + a
+    }
+
+    function multiplyAssign(uint a) public {
+        value *= a;  // 相当于 value = value * a
+    }
+}
+```
+
+### 6、增量与减量运算符
+
+增量和减量运算符用于增加或减少变量的值。`++` 表示自增 1，`--` 表示自减 1。这两个运算符可以作为前缀或后缀。
+
+| 运算符 | 描述      | 示例       |
+|--------|-----------|------------|
+| `++`   | 自增 1    | `a++` 或 `++a` |
+| `--`   | 自减 1    | `a--` 或 `--a` |
+
+#### 示例代码
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract IncrementDecrementOperators {
+    uint public counter = 0;
+
+    function increment() public {
+        counter++;
+    }
+
+    function decrement() public {
+        counter--;
+    }
+}
+```
+
+### 7、运算符的安全性
+
+在 Solidity 中，整数运算可能会遇到**溢出**和**下溢**的问题，尤其是在使用算术运算符时。为解决这一问题，Solidity 0.8.0 及以上版本自动启用了溢出和下溢检测，当发生溢出或下溢时会抛出错误，终止交易。
+
+#### 示例
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract OverflowExample {
+    function overflow() public pure returns (uint) {
+        uint max = type(uint8).max; // 最大值为 255
+        return max + 1; // 触发溢出错误
+    }
+}
+```
+
+在上述示例中，`uint8` 的最大值为 255，尝试将其加 1 会导致溢出，Solidity 0.8.0 以上的版本会自动检测并抛出异常，避免错误的结果。
+
+### 8、常见运算符的实际应用场景
+
+- **加法、乘法**：计算金额、余额等金融数据。
+- **除法、取模**：时间计算和区块周期判断（如判断是否为特定区块时间的倍数）。
+-
+
+ **关系运算符**：权限控制、状态检查等。
+- **按位运算**：位掩码、权限标识等底层数据处理。
+- **移位运算**：大数乘除法、二进制操作。
+
+---
+
+
