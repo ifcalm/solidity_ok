@@ -524,3 +524,145 @@ Solidity 中的变量类型多样，包括状态变量、局部变量和全局�
 
 ---
 
+## 常量
+在 Solidity 中，**常量（Constant）** 是一种固定不变的变量，其值在合约部署时已经确定，且不可更改。常量的使用可以降低合约的 Gas 成本，提高合约的可读性和安全性。以下是 Solidity 中常量的特性、声明方式、优点及应用场景。
+
+### 1、常量的特性
+
+- **不可修改**：一旦定义为常量，值在合约的生命周期中不会发生任何变化。
+- **编译时确定**：常量的值在合约编译时已经确定，不会在运行时更改。
+- **存储成本低**：常量的值被直接嵌入到合约代码中，不需要占用 `storage` 空间，因此不会产生存储费用。
+- **Gas 消耗低**：常量在使用时不会产生额外的读写操作，减少了合约的 Gas 消耗。
+
+### 2、常量的声明
+常量在 Solidity 中使用 `constant` 关键字声明。常量通常使用 `ALL_CAPS` 的命名方式，以便区分它们与普通变量。常量可以是整数、布尔值、地址、字符串等基本类型。
+
+#### 示例 1：声明整数和地址常量
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract MyContract {
+    uint public constant MY_NUMBER = 100;           // 整数常量
+    address public constant OWNER_ADDRESS = 0x1234567890123456789012345678901234567890;  // 地址常量
+}
+```
+
+在上述示例中，`MY_NUMBER` 和 `OWNER_ADDRESS` 是常量。它们的值在合约部署时就已固定，不会在合约生命周期中改变。
+
+#### 示例 2：声明字符串常量
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract Token {
+    string public constant NAME = "MyToken";
+    string public constant SYMBOL = "MTK";
+}
+```
+
+在这个例子中，`NAME` 和 `SYMBOL` 是字符串常量，通常用于代币合约中表示代币的名称和符号。
+
+### 3、常量的优点
+
+- **节省 Gas**：由于常量的值在合约编译时嵌入代码，读取常量的操作不会产生额外的存储读写费用，因此可以减少合约的 Gas 消耗。
+- **提高合约可读性**：常量名称通常具备描述性，能够清晰地表达其用途。例如，用 `PI` 表示圆周率的值，便于理解代码逻辑。
+- **增强安全性**：常量值不可更改，避免了因意外修改而导致的逻辑错误或安全漏洞。
+
+### 4、常量的使用限制
+
+- **类型限制**：常量只能用于基本数据类型，如 `uint`、`int`、`bool`、`address` 和 `string`。复杂类型如 `array` 和 `mapping` 不能声明为常量。
+- **不可重新赋值**：常量在声明时必须赋值，且不能在之后更改其值。
+- **表达式限制**：常量的值必须是编译期已知的确定值。它们可以是基本运算结果（加法、乘法等），但不能依赖运行时数据。
+
+### 5、使用常量的场景
+
+常量在 Solidity 中通常用于表示那些需要固定不变的数值或标识，例如合约所有者地址、代币信息、配置参数等。
+
+#### 5.1、代币信息*
+
+在代币合约中，代币的名称、符号和小数位数是固定不变的属性，可以用常量来表示：
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract Token {
+    string public constant NAME = "MyToken";
+    string public constant SYMBOL = "MTK";
+    uint8 public constant DECIMALS = 18;
+}
+```
+
+#### 5.2、配置参数
+
+某些合约参数在部署时确定并保持不变，例如合约的版本号、最大供应量等：
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract Crowdsale {
+    uint public constant MAX_SUPPLY = 1000000;  // 代币最大供应量
+    uint public constant EXCHANGE_RATE = 200;   // 兑换率，1 ETH = 200 代币
+}
+```
+
+#### 5.3、费率和时间参数
+
+合约中经常需要设定固定的费率或时间参数，比如平台手续费比例、时间间隔等：
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract FeeContract {
+    uint public constant FEE_PERCENTAGE = 2;         // 手续费百分比
+    uint public constant LOCK_PERIOD = 30 days;      // 锁定期
+}
+```
+
+### 6、Gas 节省示例
+
+以下示例展示了使用常量和非常量的 Gas 消耗对比：
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract GasComparison {
+    uint public constant MY_CONSTANT = 100;      // 常量变量
+    uint public myVariable = 100;                // 普通变量
+
+    function useConstant() public pure returns (uint) {
+        return MY_CONSTANT;
+    }
+
+    function useVariable() public view returns (uint) {
+        return myVariable;
+    }
+}
+```
+
+在此示例中：
+
+- 调用 `useConstant()` 不会产生存储读取的费用，因为 `MY_CONSTANT` 是常量，直接在代码中被访问。
+- 调用 `useVariable()` 会产生存储读取的费用，因为 `myVariable` 是状态变量，需要从 `storage` 中读取。
+
+实际测试中，`useConstant()` 的 Gas 消耗会低于 `useVariable()`。
+
+### 7、常见的常量应用
+
+- **圆周率**：使用常量表示固定数值，比如 `PI` 的值。
+- **合约地址**：某些合约需要与特定地址交互，可以用常量存储地址。
+- **比例系数**：例如费率、兑换比例等，在合约中保持不变。
+- **时间参数**：用于规定某些操作的锁定期或时间间隔。
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract ConstantsExample {
+    uint public constant EXCHANGE_RATE = 300;  // 固定的兑换比例
+    uint public constant LOCK_DURATION = 1 days; // 时间常量表示锁定期
+}
+```
+
+### 总结
+Solidity 中的常量是一种不可更改的变量，通过 `constant` 关键字定义。在智能合约中合理使用常量可以提高代码的可读性和安全性，同时显著减少 Gas 消耗。常量通常用于表示合约的固定属性、费率、时间参数等，避免因变量修改引发的意外错误。
+
