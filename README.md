@@ -146,3 +146,4 @@
 
 - [Remix工具](https://remix-project.org/?lang=zh)
 - [MarkDown语法](https://markdown.com.cn/basic-syntax/)
+- [速学150个Linux命令](https://www.bilibili.com/video/BV12L411a7Ne)
